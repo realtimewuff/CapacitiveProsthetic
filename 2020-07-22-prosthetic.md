@@ -60,6 +60,11 @@ The control module masquerades as a Bluetooth-enabled phone with the appropriate
 #### Electrodes
 The electrodes are made by cutting the Dupont wire on one end, and folding the exposed wire inside a plate made out of aluminum foil. Use multiple layers of aluminum foil for more durability. The ground electrode is placed on the body in contact with the skin (behind the harness). Cut the base and tip electrodes so that a gap is left when they are wrapped around the wand. The wires are run through this gap. The Dupont connectors on the wires may come loose with multiple insertions. Consider replacing the wires often, taping the connectors together, and using socket connectors instead of pin connectors for the first connection (only the socket connector loosens with use). Otherwise you may be faced with an unplanned debugging session if wires come loose during play.
 
+#### Images
+
+![Photo of the prototype device without sleeve](https://realtimewuff.com/files/img/device.jpg)
+
+
 #### Finalizing
 The wand part is wrapped in plastic wrap, and a condom is unfolded on top. Leave a gap in the plastic wrap at the tip for charging the wand, but fold the plastic wrap over the charging port when in use (to avoid lube from the condom getting into the charging port).
 Finally, power on the wand and unfold the penis extender sleeve over the condom. Put a condom on the extender sleeve for good measure. The device is now ready for use.
