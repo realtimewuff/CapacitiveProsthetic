@@ -1,4 +1,4 @@
-# "Lecture notes in sexual HCI" 1: capacitive touch sensing prosthetic penis
+# Lecture notes in sexual HCI 1: capacitive touch sensing prosthetic penis
 
 **Content Warning**: bodies and electronics discussed in a sexual context, described at a concrete level without any graphic images
 
