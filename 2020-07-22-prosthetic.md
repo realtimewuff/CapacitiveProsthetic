@@ -1,11 +1,4 @@
-:title "Lecture notes in sexual HCI" 1: capacitive touch sensing prosthetic penis
-:author RT
-
-**Content Warning**: bodies and electronics discussed in a sexual context, described at a concrete level with some images but no graphic depictions of sex or genitalia
-
-As a budding HCI researcher, I have been interested in the intersection between sexuality and human-computer interaction (or HMI) for the last couple of years. I begun this project in 2018 by exploring different sensors that could be used for a touch-sensitive prosthetic penis, the main target audience at the time being trans men.
-
-~~
+# "Lecture notes in sexual HCI" 1: capacitive touch sensing prosthetic penis
 
 **Content Warning**: bodies and electronics discussed in a sexual context, described at a concrete level without any graphic images
 
