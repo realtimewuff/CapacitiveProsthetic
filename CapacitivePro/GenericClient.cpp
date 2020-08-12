@@ -224,8 +224,8 @@ void GenericClient::updateMonsterpub(float value, int deviceIndex) {
   translatedValue = constrain(translatedValue, 0, 100);
   //String characteristicValue = "Vibrate:" + String(translatedValue) + ";";
   uint8_t finalVal = (uint8_t)translatedValue;
-  Serial.print("Monster: ");
-  Serial.println(String(finalVal));
+  //Serial.print("Monster: ");
+  //Serial.println(String(finalVal));
   // Set the characteristic's value to be the array of bytes that is actually a string.
   remoteChars[deviceIndex]->writeValue(finalVal, false);
   //lastFloatValue[deviceIndex] = value;
