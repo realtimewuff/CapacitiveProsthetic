@@ -1,6 +1,7 @@
 #include "BLEDevice.h"
 #include "Arduino.h"
 #include "GenericClient.h"
+#include "curves.h"
 
 /**
  * Scan for BLE servers and find the first one that advertises the service we are looking for.
@@ -17,25 +18,26 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         Serial.println(advertisedDevice.toString().c_str());
     
         // We have found a device, let us now see if it contains the service we are looking for.
-        if (advertisedDevice.haveServiceUUID()) {
-          DeviceType foundDevice = myClient->findDevice(advertisedDevice);
+        //if (advertisedDevice.haveServiceUUID()) {
+          FoundDevice *foundDevice = myClient->findDevice(advertisedDevice);
           
-          if (foundDevice != NoDevice) { // Found interesting device
+          if (foundDevice != NULL) { // Found interesting device
             if (myClient->foundDevices < MAX_CLIENTS) {
               int currentDevice = myClient->foundDevices;
               myClient->foundDevices++;
               myClient->advertisedDevices[currentDevice] = new BLEAdvertisedDevice(advertisedDevice);
               //myClient->doConnect = true;
               //myClient->doScan = true;
-              myClient->deviceTypes[currentDevice] = foundDevice;
-              myClient->foundServiceUUIDs[currentDevice] = new BLEUUID(advertisedDevice.getServiceUUID());
+              myClient->deviceTypes[currentDevice] = foundDevice->type;
+              //myClient->foundServiceUUIDs[currentDevice] = new BLEUUID(advertisedDevice.getServiceUUID());
+              myClient->foundServiceUUIDs[currentDevice] = foundDevice->uuid;
               //myClient->connectToServer(myClient->foundDevices-1);
             }
             else { // if found max number of devices, stop scan
               BLEDevice::getScan()->stop();
             }
           }
-        }
+        //} // if haveserviceuuid
       } // onResult
 }; // MyAdvertisedDeviceCallbacks
 
@@ -53,21 +55,65 @@ class MyClientCallback : public BLEClientCallbacks {
     }
 };
 
-DeviceType GenericClient::findDevice(BLEAdvertisedDevice device) {
-  std::string uuid = device.getServiceUUID().toString();
-  for (int i=1; i<DEVICE_TYPES_COUNT; i++) {
-    if (uuid.find(serviceUUIDs[i]) != std::string::npos) { // service found
-      bool alreadyConnected = false;
-      for (int j=0; j<MAX_CLIENTS; j++) {
-        if (deviceTypes[j] == i && connected[j])
-          alreadyConnected = true;
-      }
-      if (!alreadyConnected)
-        return (DeviceType)i;
+bool hasEnding (std::string const &fullString, std::string const &ending) {
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
     }
+
+    //return fullString.find(ending) != std::string::npos;
+}
+
+FoundDevice * GenericClient::findDevice(BLEAdvertisedDevice device) {
+  std::string uuid;
+  int uuidCount = device.getServiceUUIDCount();
+  for (int j=0; j<uuidCount; j++) {
+    
+    uuid = device.getServiceUUID(j).toString();
+    Serial.print("Service: ");
+    Serial.println(uuid.c_str());
+    for (int i=1; i<DEVICE_TYPES_COUNT; i++) {
+      if (hasEnding(uuid, serviceUUIDs[i])) { // service found
+        bool alreadyConnected = false;
+        for (int j=0; j<MAX_CLIENTS; j++) {
+          if (deviceTypes[j] == i && connected[j])
+            alreadyConnected = true;
+        }
+        if (!alreadyConnected) {
+          BLEUUID *buid = new BLEUUID(device.getServiceUUID(j));
+          return new FoundDevice((DeviceType)i, buid);
+        }
+      }
+    }
+
   }
 
-  return NoDevice;
+
+  std::string uuidData;
+  int uuidDataCount = device.getServiceDataUUIDCount();
+  for (int j=0; j<uuidDataCount; j++) {
+    
+    uuidData = device.getServiceDataUUID(j).toString();
+    Serial.print("ServiceData UUID: ");
+    Serial.println(uuidData.c_str());
+    for (int i=1; i<DEVICE_TYPES_COUNT; i++) {
+      if (hasEnding(uuidData, serviceUUIDs[i])) { // service found
+        bool alreadyConnected = false;
+        for (int j=0; j<MAX_CLIENTS; j++) {
+          if (deviceTypes[j] == i && connected[j])
+            alreadyConnected = true;
+        }
+        if (!alreadyConnected) {
+          BLEUUID *buid = new BLEUUID(device.getServiceDataUUID(j));
+          return new FoundDevice((DeviceType)i, buid);
+        }
+      }
+    }
+
+  }
+
+  return NULL;
 }
 
 bool GenericClient::connectToServer(int deviceIndex) {
@@ -100,19 +146,30 @@ bool GenericClient::connectToServer(int deviceIndex) {
       pClient->disconnect();
       return false;
     }
-    Serial.println(" - Found our service");
+    Serial.print(" - Found our service UUID: ");
+    Serial.println(serviceUUID.toString().c_str());
 
 
     // Obtain a reference to the characteristic in the service of the remote BLE server.
     std::map<std::string, BLERemoteCharacteristic*> *charsMap = pRemoteService->getCharacteristics();
     std::map<std::string, BLERemoteCharacteristic*>::iterator it;
+
+    Serial.print("Starting characteristic search for UUID: ");
+    Serial.println(charUUIDs[deviceTypes[deviceIndex]].c_str());
+    
     
     for ( it = charsMap->begin(); it != charsMap->end(); it++ )
     {
       std::string uuid = it->first;
+      Serial.print("Candidate characteristic: ");
+      Serial.println(uuid.c_str());
       BLERemoteCharacteristic *characteristic = it->second;
-      if (uuid.find(charUUIDs[deviceTypes[deviceIndex]]) != std::string::npos && characteristic->canWrite()) { // correct writeable characteristic found
+      if (hasEnding(uuid, charUUIDs[deviceTypes[deviceIndex]])) { // correct writeable characteristic found
         pRemoteCharacteristic = characteristic;
+        Serial.print(" - Found our characteristic len ");
+        Serial.print(uuid.length());
+        Serial.print(" ");
+        Serial.println(uuid.c_str());
         break;
       }
     }
@@ -136,7 +193,7 @@ bool GenericClient::connectToServer(int deviceIndex) {
     /*if(pRemoteCharacteristic->canNotify())
       pRemoteCharacteristic->registerForNotify(notifyCallback);*/
 
-    if(pRemoteCharacteristic->canWrite()) {
+    if(pRemoteCharacteristic->canWrite() || pRemoteCharacteristic->canWriteNoResponse()) {
       remoteChars[deviceIndex] = pRemoteCharacteristic;
       connected[deviceIndex] = true;
       Serial.println("Can write to characteristic");
@@ -161,8 +218,29 @@ void GenericClient::updateLovense(float value, int deviceIndex) {
   //lastFloatValue[deviceIndex] = value;
 }
 
-void GenericClient::updateVibration(float value) {
-  value = constrain(value, 0.0, 1.0);
+void GenericClient::updateMonsterpub(float value, int deviceIndex) {
+  value = curve(value, 0.0, 1.0, 4);
+  int translatedValue = (int)(value*100.0+0.5);
+  translatedValue = constrain(translatedValue, 0, 100);
+  //String characteristicValue = "Vibrate:" + String(translatedValue) + ";";
+  uint8_t finalVal = (uint8_t)translatedValue;
+  Serial.print("Monster: ");
+  Serial.println(String(finalVal));
+  // Set the characteristic's value to be the array of bytes that is actually a string.
+  remoteChars[deviceIndex]->writeValue(finalVal, false);
+  //lastFloatValue[deviceIndex] = value;
+}
+
+
+void GenericClient::updateVibration(float value, float pos) {
+  float origValue = constrain(value, 0.0, 1.0);
+  value = origValue;
+  
+  pos = constrain(pos, -1.0, 1.0);
+  float convertedPos = (pos+1.0)*0.5;
+  float a1 = sqrtf(1.0-convertedPos)*value; // base
+  float a2 = sqrtf(convertedPos)*value; // tip
+  
   
   for (int i=0; i<foundDevices; i++) {
     /*if (fabs(lastFloatValue[i] - value) < 0.0001) { // filter useless messages
@@ -174,7 +252,16 @@ void GenericClient::updateVibration(float value) {
     if (connected[i]) {
       switch (deviceTypes[i]) {
         case Lovense:
-          updateLovense(value, i);
+          if (foundDevices == 2)
+            updateLovense(a2, i);
+          else
+            updateLovense(value, i);
+          break;
+        case Monsterpub:
+          if (foundDevices == 2)
+            updateMonsterpub(a1, i);
+          else
+            updateMonsterpub(value, i);
           break;
         default:
           break;
@@ -212,10 +299,10 @@ void GenericClient::startClient() {
   MyAdvertisedDeviceCallbacks *cb = new MyAdvertisedDeviceCallbacks();
   cb->myClient = this;
   pBLEScan->setAdvertisedDeviceCallbacks(cb);
-  pBLEScan->setInterval(1349);
-  pBLEScan->setWindow(449);
+  pBLEScan->setInterval(1349); // 1349
+  pBLEScan->setWindow(449); // 449
   pBLEScan->setActiveScan(true);
-  pBLEScan->start(10, false); // 10 seconds scan
+  pBLEScan->start(12, false); // 10 seconds scan
   for (int i=0; i<foundDevices; i++) {
     connectToServer(i);
   }
@@ -224,13 +311,17 @@ void GenericClient::startClient() {
       initDevice(i);
   }
 
-  updateVibration(0.5);
+  updateVibration(0.5, 0.0);
   delay(200);
-  updateVibration(0.0);
+  updateVibration(0.0, 0.0);
   delay(500);
-  updateVibration(0.5);
+  updateVibration(0.5, 0.0);
   delay(200);
-  updateVibration(0.0);
-  updateVibration(0.0);
-  updateVibration(0.0);
+  updateVibration(0.0, 0.0);
+  updateVibration(0.0, 0.0);
+  updateVibration(0.0, 0.0);
+  /*updateVibration(1.0, -1.0);
+  updateVibration(1.0, -1.0);
+  updateVibration(1.0, -1.0);
+  updateVibration(1.0, -1.0);*/
 }

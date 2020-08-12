@@ -886,7 +886,7 @@ void update_vibrator(int64_t currTime) {
     value = constrain(max(mapf(value, 0.0, 1.0, max(minimum_output_level, secondary_mol), 1.0),
     max(minimum_output_level, secondary_mol)), 0.0, 1.0);
     if (vibrator_on)
-      client.updateVibration(value);
+      client.updateVibration(value, touch_position); // when hand is near
     lastSentVibration = value;
     //Serial.println(value);
     temp_vibe_output = value;
@@ -894,7 +894,7 @@ void update_vibrator(int64_t currTime) {
   else {
     if (currTime - last_near_time > NEAR_TIMEOUT) {
       if (vibrator_on)
-        client.updateVibration(0.0);
+        client.updateVibration(0.0, 1.0); // when hand is away, override to tip position (range still -1 to 1)
       lastSentVibration = 0.0;
       temp_vibe_output = -1;
       //Serial.println("Near timeout");
