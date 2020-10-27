@@ -1,8 +1,11 @@
-# Lecture notes in sexual HCI 1: capacitive touch sensing prosthetic penis
+:title Lecture notes in sexual HCI 1: capacitive touch sensing prosthetic penis
+:author RT
 
-**Content Warning**: bodies and electronics discussed in a sexual context, described at a concrete level without any graphic images
+**Content Warning**: bodies and electronics discussed in a sexual context, described at a concrete level with some images but no graphic depictions of sex or genitalia
 
-As a budding HCI researcher, I have been interested in the intersection between sexuality and human-computer interaction (or HMI) for the last couple of years. I begun this project in 2018 by exploring different sensors that could be used for a touch-sensitive prosthetic penis, the main target audience at the time being trans men. 
+As a budding HCI researcher, I have been interested in the intersection between sexuality and human-computer interaction (or HMI) for the last couple of years. I begun this project in 2018 by exploring different sensors that could be used for a touch-sensitive prosthetic penis, the main target audience at the time being trans men.
+
+~~
 
 I should mention that I am not trans myself, however I have had the opportunity to get feedback from a trans male tester during development, and the software and physical device has been optimized for the context of a trans guy topping a cis guy. Regardless, your experience may vary should you choose to build this project yourself.
 
@@ -25,14 +28,17 @@ The control module masquerades as a Bluetooth-enabled phone with the appropriate
 
 ## HOW TO BUILD IT
 ### Parts: 
-- WEMOS Lite ESP32 Breakout board (https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20200627085927&SearchText=wemos+lite)
-- 600 mAh LiPo battery (https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20200627090059&SearchText=600mah+battery)
-- 55x35x15mm project case (https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20200627091101&SearchText=55x35x15mm+project+case)
-- Suitable penis extender sleeve (https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20200627091302&SearchText=Soft+Silicone+Penis+Extender+Reusable)
-- Dupont wire (for connecting the electrodes) (https://www.aliexpress.com/wholesale?catId=0&SearchText=dupont+wire)
+
+Feel free to shop around for different sellers, these are just quickly picked from the first page of search results.
+
+- WEMOS Lite ESP32 Breakout board [link](https://s.click.aliexpress.com/e/_dZRUN9p)
+- 600 mAh LiPo battery [link](https://s.click.aliexpress.com/e/_dZX5vSj)
+- 55x35x15mm project case [link](https://s.click.aliexpress.com/e/_dTyQVsX)
+- Suitable penis extender sleeve ("Soft Silicone Penis Extender Reusable") [link](https://s.click.aliexpress.com/e/_dXzefMJ)
+- Connection wire (for connecting the electrodes) [link](https://s.click.aliexpress.com/e/_d7blM7t)
 - Aluminum foil for the electrodes
 - Plastic wrap
-- Spare Parts Deuce Harness (has a bigger pouch for storing the control module)
+- Harness (I suggest buying this one which has a bigger pouch for storing the control module)
 - Lovense Domi 2 Wand
 
 ### Instructions
@@ -51,11 +57,11 @@ The control module masquerades as a Bluetooth-enabled phone with the appropriate
 9. Place the contraption into a sock (only during active use, not while charging) and lead the wires out
 
 #### Electrodes
-The electrodes are made by cutting the Dupont wire on one end, and folding the exposed wire inside a plate made out of aluminum foil. Use multiple layers of aluminum foil for more durability. The ground electrode is placed on the body in contact with the skin (behind the harness). Cut the base and tip electrodes so that a gap is left when they are wrapped around the wand. The wires are run through this gap. The Dupont connectors on the wires may come loose with multiple insertions. Consider replacing the wires often, taping the connectors together, and using socket connectors instead of pin connectors for the first connection (only the socket connector loosens with use). Otherwise you may be faced with an unplanned debugging session if wires come loose during play.
+The electrodes are made by stripping wire on one end, and folding the exposed wire inside a plate made out of aluminum foil. Use multiple layers of aluminum foil for more durability. The ground electrode is placed on the body in contact with the skin (behind the harness). Cut the base and tip electrodes so that a gap is left when they are wrapped around the wand. The wires are run through this gap. I suggest using the wire wrap technique instead of cheap "Dupont"-style connectors, since the wire wrapping method makes a more durable connection. Otherwise you may be faced with an unplanned debugging session if wires come loose during play.
 
 #### Images
 
-![Photo of the prototype device without sleeve](https://realtimewuff.com/files/img/device.jpg)
+<img src="https://realtimewuff.com/files/img/device2.jpg" alt="Photo of the prototype device without sleeve" style="zoom: 25%;" />
 
 
 #### Finalizing
@@ -68,9 +74,9 @@ You should experiment with several different sleeves to find one that is the app
 Turn on the wand, reboot the control module with the RST button and it should automatically connect to the wand via bluetooth. On a successful connection, the wand should vibrate briefly. Connect to the control module via the nRF Connect app (using the device name and pin), and issue the "toggle" command in TEXT mode to the last characteristic in the list. This will enable vibration. To lighten the load on the BLE interface, consider disconnecting from the control module after issuing your commands.
 
 ## FURTHER DEVELOPMENT
-The software could be further refined, especially the prediction part. I am considering adding support for multiple actuators at the same time, and also support for other actuator models, for example suction-based stimulators. This way, the stimulation could be moved between two different actuators, perhaps one internal and one external. There is some research that suggests this could result in a phantom sensation somewhere in between the two actuators, adding a sense of position to the sensation in addition to just varying the intensity of stimulation. Finally, a third sensing channel could be added for touch-sensitive testicles, although embedding the electrode would be more challenging than with the current sleeve design. 
+The software could be further refined, especially the prediction part. I am considering adding support for more actuator models, for example suction-based stimulators. There is preliminary support for using two actuators at the same time, in which the location of the stimulation is moved between an internal and external actuator, depending on touch location. However, preliminary testing has showed that there is no benefit from additional actuators because the illusion is not very convincing.  Finally, a third sensing channel could be added for touch-sensitive testicles, although embedding the electrode would be more challenging than with the current sleeve design. 
 
 ## RESOURCES
-Source code and instructions: 
+Source code and instructions: [Click here](https://github.com/realtimewuff/CapacitiveProsthetic)
 
 You can contact me at rt@realtimewuff.com if you have any questions on how to build the device or want to give feedback. Right now, I am putting this project on the backburner, but I may be motivated to make further improvements if I get enough feedback. As of now, I am uncertain as to how many people are out there who would actually attempt to build their own device.
